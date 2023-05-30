@@ -7,7 +7,9 @@ from shutil import rmtree
 from setuptools import Command, find_packages, setup
 
 here = os.path.abspath(os.path.dirname(__file__))
-_INIT_FILE = path.join(path.abspath(path.dirname(__file__)), "meddlr_interfaces", "__init__.py")
+_INIT_FILE = path.join(
+    path.abspath(path.dirname(__file__)), "meddlr_interfaces", "__init__.py"
+)
 
 
 class UploadCommand(Command):
@@ -142,7 +144,9 @@ class BumpVersionCommand(Command):
 
 def get_version():
     init_py = open(_INIT_FILE, "r").readlines()
-    version_line = [line.strip() for line in init_py if line.startswith("__version__")][0]
+    version_line = [line.strip() for line in init_py if line.startswith("__version__")][
+        0
+    ]
     version = version_line.split("=")[-1].strip().strip("'\"")
     return version
 
@@ -172,18 +176,14 @@ def get_git_branch():
 # Setup Information
 # ---------------------------------------------------
 NAME = "meddlr_interfaces"
-DESCRIPTION = (
-    "Interfaces for the Meddlr library built with Meerkat."
-)
+DESCRIPTION = "Interfaces for the Meddlr library built with Meerkat."
 VERSION = get_version()
 AUTHOR = "The Meddlr Team"
 EMAIL = "arjundd@stanford.edu"
 URL = "https://github.com/ad12/meddlr_interfaces"
 REQUIRES_PYTHON = ">=3.6"
 
-REQUIRED = [
-    "meddlr", "meerkat-ml"
-]
+REQUIRED = ["meddlr", "meerkat-ml"]
 
 EXTRAS = {
     "dev": [
@@ -206,7 +206,9 @@ setup(
     description=DESCRIPTION,
     long_description=long_description,
     long_description_content_type="text/markdown",
-    packages=find_packages(exclude=("configs", "tests", "*.tests", "*.tests.*", "tests.*")),
+    packages=find_packages(
+        exclude=("configs", "tests", "*.tests", "*.tests.*", "tests.*")
+    ),
     python_requires=REQUIRES_PYTHON,
     install_requires=REQUIRED,
     extras_require=EXTRAS,

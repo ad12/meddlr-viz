@@ -1,20 +1,16 @@
-from typing import Callable, Dict, Sequence, Tuple, Union
+from typing import Callable, Dict, Tuple, Union
+
 import meddlr as mr
 import meerkat as mk
-from torch import nn
-import torch
-import h5py
-import pandas as pd
-from meddlr.data.transforms.subsample import PoissonDiskMaskFunc
-from meddlr.transforms import RandomNoise, RandomMRIMotion
-from meddlr.transforms.builtin.mri import MRIReconAugmentor
-from meddlr.forward.mri import SenseModel
-from meerkat.interactive.formatter.image import ImageFormatter
-import PIL
 import numpy as np
-from meddlr.utils import env
-from tqdm.auto import tqdm
-from meerkat.interactive.formatter.tensor import TensorFormatterGroup
+import PIL
+import torch
+from meddlr.data.transforms.subsample import PoissonDiskMaskFunc
+from meddlr.forward.mri import SenseModel
+from meddlr.transforms import RandomMRIMotion, RandomNoise
+from meddlr.transforms.builtin.mri import MRIReconAugmentor
+from torch import nn
+
 from meddlr_interfaces.utils import is_url
 
 
@@ -39,8 +35,10 @@ class MRIPerturbationInference(mk.gui.html.div):
             df: A DataFrame containing the slices to visualize. Columns expected:
                 * ``id``: The id of the scan. This should be unique to each scan.
                 * ``sl``: The slice index. These should be zero-indexed and sequential.
-                * ``kspace``: The fully sampled kspace for the slice. Shape: (H, W, #coils)
-                * ``maps``: The sensitivity maps for the slice. Shape: (H, W, #coils)
+                * ``kspace``: The fully sampled kspace for the slice.
+                  Shape: (H, W, #coils)
+                * ``maps``: The sensitivity maps for the slice.
+                  Shape: (H, W, #coils)
                 * ``target`` (optional): The target image for the slice. Shape: (H, W).
             models: A dictionary mapping model names to model URLs.
             seed: The random seed to use. This is required if results
@@ -210,7 +208,7 @@ class MRIPerturbationInference(mk.gui.html.div):
                     [mk.gui.Text("Motion", classes="text-slate-600 text-sm"), motion],
                 ),
             ],
-            classes="items-stretch justify-items-start gap-x-4 gap-y-4 justify-content-space-between",
+            classes="items-stretch justify-items-start gap-x-4 gap-y-4 justify-content-space-between",  # noqa: E501
         )
 
         view = mk.gui.html.div(
@@ -227,43 +225,6 @@ class MRIPerturbationInference(mk.gui.html.div):
             classes="gap-4 h-screen grid grid-rows-[auto_1fr] bg-white",
         )
         return view
-
-    @mk.reactive(backend_only=True)
-    def build_df(self, df: mk.DataFrame, acc: float, sigma: float, alpha: float, model: Callable):
-        """Build the dataframe for the slice."""
-        # shape, mask, perturbed kspace, zero-filled, model reconstruction.
-        df = df.copy()
-        df["shape"] = df["kspace"].defer(lambda x: x.shape)
-        df["mask"] = df["shape"].defer(lambda shape: self.generate_mask(shape, acc=acc))
-        df["perturbed_kspace"] = mk.defer(df, lambda kspace, maps, mask: self.perturb(kspace, maps, mask=mask, sigma=sigma, alpha=alpha))
-        df["zero_filled"] = mk.defer(df, lambda kspace, maps, mask: self.zero_filled(kspace, maps, mask=mask))
-        df["model_reconstruction"] = mk.defer(df, lambda kspace, maps, mask: self.run_inference(kspace, maps, mask, model))
-
-        return df
-
-        # Get kspace, maps and target.
-        kspace, maps, target = _get_fields(df)
-
-        with mk.magic():
-            shape = kspace.shape
-
-        # Generate mask
-        mask = self.generate_mask(shape, acc=acc)
-
-        # Perturb kspace
-        kspace = self.perturb(kspace, maps, mask=mask, sigma=sigma, alpha=alpha)
-
-        # Zero-filled reconstruction.
-        zf_image = self.zero_filled(kspace, maps, mask=mask)
-
-        # Model reconstruction.
-        model = self.load_model(model_name)
-        pred = self.run_inference(kspace, maps, mask, model)
-
-        # Create dataframe.
-        df = create_df(zf_image, pred, target=target)
-        return df
-
 
     @mk.reactive(backend_only=True)
     def get_scan_df(self, df: mk.DataFrame, scan_id: str) -> mk.DataFrame:
@@ -404,55 +365,6 @@ def create_df(zf_image, pred, target=None):
             "Target": [to_pil(target)] if target is not None else [None],
         }
     )
-    return df
-
-
-def build_slice_df(
-    paths: Sequence[str], defer: bool = True, pbar: bool = False, slice_dim: int = 0
-):
-    """Build a dataframe containing the slices to visualize.
-
-    Args:
-        paths: A list of paths to the HDF5 files containing the slices.
-            Files should follow the meddlr dataset format with keys:
-            * ``kspace``: The fully sampled kspace for the slice. Shape: (Z, Y, X, #coils)
-            * ``maps``: The sensitivity maps for the slice. Shape: (Z, Y, X, #coils)
-            * ``target`` (optional): The target image for the slice. Shape: (Z, Y, X).
-        defer: Whether to defer loading the data.
-    """
-
-    def _load_data(row):
-        path = row["path"]
-        sl = row["sl"]
-        with h5py.File(path, "r") as f:
-            kspace = torch.as_tensor(f["kspace"][sl])
-            maps = torch.as_tensor(f["maps"][sl])
-            target = torch.as_tensor(f["target"][sl]) if "target" in f else None
-        return {"kspace": kspace, "maps": maps, "target": target}
-
-    pm = env.get_path_manager()
-
-    records = []
-    for path in tqdm(paths, disable=not pbar):
-        path = pm.get_local_path(path)
-        with h5py.File(path, "r") as f:
-            num_slices = f["kspace"].shape[0]
-        for sl in range(num_slices):
-            records.append({"path": path, "sl": sl})
-
-    df = pd.DataFrame.from_records(records)
-    df = mk.DataFrame.from_pandas(df)
-    if defer:
-        df_load = mk.defer(df, _load_data)
-    else:
-        df_load = mk.map(df, _load_data)
-    df = mk.concat([df, df_load], axis=1).drop("index")
-
-    # Set formatters
-    df["kspace"].formatters = TensorFormatterGroup().defer()
-    df["maps"].formatters = TensorFormatterGroup().defer()
-    if "target" in df:
-        df["target"].formatters = TensorFormatterGroup().defer()
     return df
 
 

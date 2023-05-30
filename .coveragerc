@@ -1,6 +1,6 @@
 [run]
 branch = True
-source = meddlr
+source = meddlr_interfaces
 
 [report]
 exclude_lines =
@@ -12,16 +12,4 @@ exclude_lines =
     def __str__
 ignore_errors = True
 include =
-    meddlr/*
-omit =
-    meddlr/modeling/*
-    meddlr/data/transforms/noise.py
-    meddlr/data/transforms/motion.py
-    meddlr/data/transforms/noiseandmotion.py
-    meddlr/data/transforms/transform.py
-    meddlr/utils/*
-    meddlr/config/compat.py
-    meddlr/engine/defaults.py
-    meddlr/engine/hooks.py
-    meddlr/engine/train_loop.py 
-    meddlr/engine/trainer.py 
+    meddlr_interfaces/*
