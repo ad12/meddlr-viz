@@ -6,9 +6,10 @@ from shutil import rmtree
 
 from setuptools import Command, find_packages, setup
 
+PACKAGE_DIR = "meddlr_viz"
 here = os.path.abspath(os.path.dirname(__file__))
 _INIT_FILE = path.join(
-    path.abspath(path.dirname(__file__)), "meddlr_interfaces", "__init__.py"
+    path.abspath(path.dirname(__file__)), PACKAGE_DIR, "__init__.py"
 )
 
 
@@ -87,8 +88,8 @@ class BumpVersionCommand(Command):
             )
 
     def _undo(self):
-        os.system("git restore --staged meddlr_interfaces/__init__.py")
-        os.system("git checkout -- meddlr_interfaces/__init__.py")
+        os.system(f"git restore --staged {PACKAGE_DIR}/__init__.py")
+        os.system(f"git checkout -- {PACKAGE_DIR}/__init__.py")
 
     def run(self):
         self.status("Checking current branch is 'main'")
@@ -119,8 +120,8 @@ class BumpVersionCommand(Command):
             self._undo()
             raise RuntimeError("Failed to update version.")
 
-        self.status("Adding meddlr_interfaces/__init__.py to git")
-        err_code = os.system("git add meddlr_interfaces/__init__.py")
+        self.status(f"Adding {PACKAGE_DIR}/__init__.py to git")
+        err_code = os.system(f"git add {PACKAGE_DIR}/__init__.py")
         if err_code != 0:
             self._undo()
             raise RuntimeError("Failed to add file to git.")
@@ -175,12 +176,12 @@ def get_git_branch():
 # ---------------------------------------------------
 # Setup Information
 # ---------------------------------------------------
-NAME = "meddlr_interfaces"
+NAME = "meddlr-viz"
 DESCRIPTION = "Interfaces for the Meddlr library built with Meerkat."
 VERSION = get_version()
 AUTHOR = "The Meddlr Team"
 EMAIL = "arjundd@stanford.edu"
-URL = "https://github.com/ad12/meddlr_interfaces"
+URL = f"https://github.com/ad12/{PACKAGE_DIR}"
 REQUIRES_PYTHON = ">=3.6"
 
 REQUIRED = ["meddlr", "meerkat-ml"]

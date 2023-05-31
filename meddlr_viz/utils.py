@@ -1,12 +1,13 @@
 from typing import Sequence
 
 import h5py
-import meerkat as mk
 import pandas as pd
 import torch
 from meddlr.utils import env
-from meerkat.interactive.formatter.tensor import TensorFormatterGroup
 from tqdm.auto import tqdm
+
+import meerkat as mk
+from meerkat.interactive.formatter.tensor import TensorFormatterGroup
 
 
 def is_url(path):
@@ -58,7 +59,8 @@ def build_slice_df(
         df_load = mk.defer(df, _load_data)
     else:
         df_load = mk.map(df, _load_data)
-    df = mk.concat([df, df_load], axis=1).drop("index")
+    # df = mk.concat([df, df_load], axis=1).drop("index")
+    df = df.merge(df_load, on="pkey")
 
     # Set formatters
     df["kspace"].formatters = TensorFormatterGroup().defer()
