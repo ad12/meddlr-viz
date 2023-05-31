@@ -1,13 +1,12 @@
 from typing import Sequence
 
 import h5py
+import meerkat as mk
 import pandas as pd
 import torch
 from meddlr.utils import env
-from tqdm.auto import tqdm
-
-import meerkat as mk
 from meerkat.interactive.formatter.tensor import TensorFormatterGroup
+from tqdm.auto import tqdm
 
 
 def is_url(path):

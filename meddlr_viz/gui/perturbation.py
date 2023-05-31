@@ -1,6 +1,7 @@
 from typing import Callable, Dict, Tuple, Union
 
 import meddlr as mr
+import meerkat as mk
 import numpy as np
 import PIL
 import torch
@@ -9,8 +10,6 @@ from meddlr.forward.mri import SenseModel
 from meddlr.transforms import RandomMRIMotion, RandomNoise
 from meddlr.transforms.builtin.mri import MRIReconAugmentor
 from torch import nn
-
-import meerkat as mk
 
 from meddlr_viz.utils import is_url
 
@@ -52,8 +51,9 @@ class MRIPerturbationInference(mk.gui.html.div):
                 * ``maps``: The sensitivity maps for the slice.
                   Shape: (H, W, #coils)
                 * ``target`` (optional): The target image for the slice. Shape: (H, W).
-            models: A dictionary mapping model names to model URLs, torch modules, or functions.
-                These models should take in a dictionary with keys ``kspace``, ``maps`` and ``mask``.
+            models: A dictionary mapping model names to model URLs, torch modules,
+                or functions. These models should take in a dictionary with keys
+                ``kspace``, ``maps`` and ``mask``.
                 Output should be a torch tensor or a dictionary with key ``pred``.
             acc: The acceleration factor range. Format: (min, max, step)
             sigma: The noise standard deviation range. Format: (min, max, step)

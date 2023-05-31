@@ -8,9 +8,7 @@ from setuptools import Command, find_packages, setup
 
 PACKAGE_DIR = "meddlr_viz"
 here = os.path.abspath(os.path.dirname(__file__))
-_INIT_FILE = path.join(
-    path.abspath(path.dirname(__file__)), PACKAGE_DIR, "__init__.py"
-)
+_INIT_FILE = path.join(path.abspath(path.dirname(__file__)), PACKAGE_DIR, "__init__.py")
 
 
 class UploadCommand(Command):
