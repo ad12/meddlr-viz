@@ -298,7 +298,7 @@ class MRIPerturbationInference(mk.gui.html.div):
             The loaded model.
         """
         model_init = self.models[name]
-        if is_url(model_init):
+        if isinstance(model_init, str) and is_url(model_init):
             # Only supports huggingface format for meddlr models.
             model = mr.get_model_from_zoo(
                 model_init + "/config.yaml", model_init + "/model.ckpt"
