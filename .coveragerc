@@ -1,0 +1,15 @@
+[run]
+branch = True
+source = meddlr_interfaces
+
+[report]
+exclude_lines =
+    pragma: no cover
+    raise NotImplemented
+    raise NotImplementedError
+    if __name__ == .__main__.:
+    def __repr__
+    def __str__
+ignore_errors = True
+include =
+    meddlr_interfaces/*
