@@ -24,8 +24,7 @@ MeddlrViz offers interfaces for visualizing and interacting with data, machine l
 
 <div align="center">
 
-<video controls autoplay loop> 
-<source src="static/vortex.mp4" type="video/mp4">
+<video src="static/vortex.mp4" height=400 controls autoplay loop> 
 </video>
 </div>
 
