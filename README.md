@@ -24,8 +24,7 @@ MeddlrViz offers interfaces for visualizing and interacting with data, machine l
 
 <div align="center">
 
-<video src="static/vortex.mp4" height=400 controls autoplay loop> 
-</video>
+<image src="static/vortex.gif" height=400 alt="MRI reconstruction under noise and motion perturbation" />
 </div>
 
 
