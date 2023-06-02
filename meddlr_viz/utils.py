@@ -55,11 +55,12 @@ def build_slice_df(
     df = pd.DataFrame.from_records(records)
     df = mk.DataFrame.from_pandas(df)
     if defer:
-        df_load = mk.defer(df, _load_data)
+        df_load: mk.DataFrame = mk.defer(df, _load_data)
     else:
-        df_load = mk.map(df, _load_data)
-    # df = mk.concat([df, df_load], axis=1).drop("index")
-    df = df.merge(df_load, on="pkey")
+        df_load: mk.DataFrame = mk.map(df, _load_data)
+    df = mk.concat([df, df_load], axis=1).drop("index")
+
+    # df = df.merge(df_load, left_on=df.primary_key, right_on=df_load.primary_key)
 
     # Set formatters
     df["kspace"].formatters = TensorFormatterGroup().defer()
