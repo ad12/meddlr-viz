@@ -6,9 +6,8 @@ from abc import abstractmethod
 from typing import Dict, List
 
 import meerkat as mk
-import numpy as np
-from meerkat.interactive.app.src.lib.component.abstract import SlotsMixin
 import pandas as pd
+from meerkat.interactive.app.src.lib.component.abstract import SlotsMixin
 
 
 class ReaderStudyTemplate(mk.gui.html.div):
@@ -18,7 +17,8 @@ class ReaderStudyTemplate(mk.gui.html.div):
         * Shuffle the dataframe before passing it to the reader study.
 
     TODOs:
-        * Label in dataframe or with UI components - need to bind dataframe cells to UI values
+        * Label in dataframe or with UI components - need to bind
+          dataframe cells to UI values
     """
 
     def __init__(
@@ -212,19 +212,35 @@ class ReaderStudyTemplate(mk.gui.html.div):
             for column in self.columns
         ]
 
-        previous = mk.gui.Button(title="", icon="ArrowLeft", on_click=self.on_previous)
+        previous = mk.gui.Button(
+            title="",
+            icon="ArrowLeft",
+            on_click=self.on_previous,
+        )
         next = mk.gui.Button(title="", icon="ArrowRight", on_click=self.on_next)
-        save = mk.gui.Button(title="", icon="Save", on_click=self.on_save)
+        # save = mk.gui.Button(title="", icon="Save", on_click=self.on_save)
 
         gallery_scorers = mk.gui.html.div(
             [
                 mk.gui.html.div([gallery, scorer])
                 for gallery, scorer in zip(galleries, scorer_components)
             ],
-            classes=f"grid grid-cols-{self.ncols} gap-8 h-full",
+            classes=f"grid grid-cols-{self.ncols} gap-2 h-full",
         )
-        buttons = mk.gui.html.gridcols3([previous, next, save])
-        return mk.gui.html.div([buttons, gallery_scorers], classes="h-screen")
+        buttons = mk.gui.html.gridcols3(
+            [
+                previous,
+                mk.gui.Markdown(
+                    "### Example "
+                    + mk.str(self.row + 1)
+                    + "/"
+                    + mk.str(mk.len(self.df))
+                ),
+                next,
+            ],
+            classes="justify-between justify-items-center bg-slate-100 items-center",
+        )
+        return mk.gui.html.div([buttons, gallery_scorers], classes="h-screen gap-y-10")
 
     def get_value(self, scorer):
         """Get the value from the scorer.
