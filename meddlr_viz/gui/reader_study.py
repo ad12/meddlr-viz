@@ -37,7 +37,7 @@ class ReaderStudyTemplate(mk.gui.html.div):
                     * ``image_id``: Values are the primary key of the ``df``.
                     * ``category``: The name of the category.
                     * ``label``: The value for the associated category.
-            ncols: The number of columns to display in the reader study
+            ncols: The number of columns for panels in the reader study.
         """
         super().__init__([])
 
@@ -56,10 +56,6 @@ class ReaderStudyTemplate(mk.gui.html.div):
         if ncols is None:
             ncols = len(columns)
         self.ncols = ncols
-
-        # Show the full image
-        # for column in columns:
-        #     self.df[column].formatters["gallery"] = self.df[column].formatters["full"]
 
         # TODO: Add support for initializing with empty table.
         if label_df is None:
